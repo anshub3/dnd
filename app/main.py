@@ -3,6 +3,7 @@
 from fastapi import FastAPI
 from app.graph.workflow import dungeon_master_app
 from app.schema.player import GameState
+from app.core.database import save_game_state, SessionLocal, GameStateModel
 
 
 # --------------------------
@@ -11,19 +12,26 @@ from app.schema.player import GameState
 
 app = FastAPI(title="Neuro-Symbolic D&D DM")
 
-@app.post("/chat")
-async def handle_turn(message: str, current_state: GameState):
-    """
-    1. Receives user message from the UI.
-    2. Runs the LangGraph workflow (Mechanic -> Chronicler -> Narrator).
-    3. Returns the updated state and the DM's narrative response.
-    """
-    inputs = {"user_input": message, "state": current_state}
+@app.post("/chat/{game_id}")
+async def handle_chat(game_id: str, message: str):
+    # 1. Load state from DB
+    db = SessionLocal()
+    record = db.query(GameStateModel).filter(GameStateModel.game_id == game_id).first()
+    current_state = record.state_data if record else {}
     
-    # LangGraph processes the multi-agent logic
+    # 2. Run the Multi-Agent Graph
+    inputs = {
+        "user_input": message, 
+        "game_state": current_state,
+        "history": []
+    }
+    
     final_output = await dungeon_master_app.ainvoke(inputs)
+    
+    # 3. Save the new state back to Postgres
+    save_game_state(game_id, final_output["game_state"])
     
     return {
         "dm_response": final_output["narrative"],
-        "updated_state": final_output["state"]
+        "chat_history": final_output["history"]
     }

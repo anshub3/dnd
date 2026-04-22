@@ -1,0 +1,24 @@
+dnd-ai-architect/
+├── app/
+│   ├── main.py             # FastAPI entry point
+│   ├── core/
+│   │   ├── config.py       # API keys, LLM endpoints
+│   │   ├── database.py     # Postgres & Neo4j connections
+│   │   └── security.py
+│   ├── agents/             # Agent definitions
+│   │   ├── mechanic.py     # Logic & Dice rolling
+│   │   ├── chronicler.py   # RAG & Graph queries
+│   │   ├── narrator.py     # Creative prose
+│   │   └── proxy.py        # AI Player logic
+│   ├── graph/              # LangGraph state & nodes
+│   │   ├── state.py        # Pydantic State definitions
+│   │   └── workflow.py     # Graph orchestration
+│   ├── schema/             # Pydantic models for Game State
+│   │   ├── player.py
+│   │   ├── combat.py
+│   │   └── world.py
+│   └── utils/              # Dice rollers, text parsers
+├── data/                   # Lore docs & Vector DB persistence
+├── tests/                  # Logic validation tests
+├── .env
+└── requirements.txt

@@ -1,14 +1,18 @@
 # apps/agents/mechanic.py
 
 import json
+import os
 import re
+from dotenv import load_dotenv
 from langchain_core.messages import SystemMessage, HumanMessage
 from app.utils.mechanics_engine import MechanicsEngine
 from app.graph.state import AgentState
 # Assuming you're using Ollama or LangChain's Llama interface
 from langchain_ollama import OllamaLLM
 
-llm = OllamaLLM(model="llama3.2", format="json")
+load_dotenv()
+
+llm = OllamaLLM(model=os.environ.get("OLLAMA_MODEL", "llama3.2"), format="json")
 
 LEVEL_REQUIREMENTS = {
     "world_altering": 17,  # Wish, Reality Warping

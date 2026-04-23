@@ -1,13 +1,17 @@
 # app/core/database.py
 
 import json
+import os
+from dotenv import load_dotenv
 from sqlalchemy import create_engine, Column, String, JSON, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from app.graph.state import AgentState
 import json
 
-DATABASE_URL = "postgresql://dnd_project:password_dnd@localhost/dnd_db"
+load_dotenv()
+
+DATABASE_URL = os.environ["DATABASE_URL"]
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

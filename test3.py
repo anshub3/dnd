@@ -1,16 +1,20 @@
 import asyncio
 import json
+import os
 import re
+from dotenv import load_dotenv
 from langchain_ollama import OllamaLLM
 from neo4j import GraphDatabase
 from typing import TypedDict
 
+load_dotenv()
+
 # --- CONFIGURATION ---
 llm = OllamaLLM(model="llama3.2")
 # Update these with your Neo4j Desktop credentials
-NEO4J_URI = "bolt://localhost:7687"
-NEO4J_USER = "neo4j"
-NEO4J_PASSWORD = "password" 
+NEO4J_URI = os.environ.get("NEO4J_URI", "bolt://localhost:7687")
+NEO4J_USER = os.environ.get("NEO4J_USER", "neo4j")
+NEO4J_PASSWORD = os.environ.get("NEO4J_PASSWORD", "password")
 
 driver = GraphDatabase.driver(NEO4J_URI, auth=(NEO4J_USER, NEO4J_PASSWORD))
 

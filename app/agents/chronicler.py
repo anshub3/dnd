@@ -1,7 +1,11 @@
 from neo4j import GraphDatabase
+import os
+from dotenv import load_dotenv
 from app.graph.state import AgentState
 
-driver = GraphDatabase.driver("bolt://localhost:7687", auth=("neo4j", "password"))
+load_dotenv()
+
+driver = GraphDatabase.driver(os.environ["NEO4J_URI"], auth=(os.environ["NEO4J_USER"], os.environ["NEO4J_PASSWORD"]))
 
 async def chronicler_node(state: AgentState):
     print("--- 📚 Chronicler: Fetching Relational Context ---")

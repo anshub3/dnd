@@ -26,18 +26,30 @@ from app.graph.state import AgentState
 
 async def narrator_node(state: AgentState):
     print("--- 🎙️ Narrator: Weaving Lore and Logic ---")
-    
-    # The 'Secret Sauce': Combining Symbolic Math + Graph Lore
-    prompt = f"""
-    SYSTEM: You are the Dungeon Master. 
-    LORE CONTEXT: {state['world_context']}
-    MECHANIC RESULT: {state['logic_results']}
-    
-    USER ACTION: {state['user_input']}
-    
-    TASK: Write a response for the group chat. If the Lore Context mentions a secret or a 
-    specific smell/vibe, weave it into the description of the player's action.
-    """
+    logic = state["logic_results"]
+
+    if not logic.get("valid", True):
+        prompt = f"""
+        The player attempted: {state['user_input']}
+        The rules forbid this because: {logic.get('reason')}
+        
+        TASK: In your DM voice, describe the player's attempt failing. 
+        Make it sound like a natural part of the world (e.g., the door is too heavy, the magic fizzles).
+        Do not mention 'rules' or 'JSON'.
+        """
+    else:  
+        prompt = f"""
+        SYSTEM: You are the Dungeon Master. 
+        LORE CONTEXT: {state['world_context']}
+        MECHANIC RESULT: {state['logic_results']}
+        RECENT CHAT HISTORY: {state['history'][-3:]}
+        
+        USER ACTION: {state['user_input']}
+        
+        TASK: Write a response for the group chat that progresses the story. 
+        If the Lore Context mentions a secret or a specific smell/vibe, weave it into the description of the player's action.
+        Do not repeat descriptions already mentioned in the history.
+        """
     
     state["narrative"] = llm.invoke(prompt)
     return state

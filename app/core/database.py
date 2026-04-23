@@ -2,8 +2,10 @@ import json
 from sqlalchemy import create_engine, Column, String, JSON
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from app.graph.state import AgentState
 
-DATABASE_URL = "postgresql://user:password@localhost/dnd_db"
+
+DATABASE_URL = "postgresql://dnd_project:password_dnd@localhost/dnd_db"
 
 engine = create_engine(DATABASE_URL)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)

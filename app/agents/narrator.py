@@ -3,7 +3,7 @@
 from neo4j import GraphDatabase
 from app.graph.state import AgentState
 
-async def narrator_node(state: AgentState):
+'''async def narrator_node(state: AgentState):
     system_prompt = """
     You are an Expert D&D Dungeon Master. 
     Use the following inputs to write a short, atmospheric group-chat message:
@@ -22,7 +22,25 @@ async def narrator_node(state: AgentState):
     # Call Llama 3.2 for the creative output
     response = llm.invoke(formatted_prompt + f"\nUser said: {state['user_input']}")
     
-    return {"narrative": response}
+    return {"narrative": response}'''
+
+async def narrator_node(state: AgentState):
+    print("--- 🎙️ Narrator: Weaving Lore and Logic ---")
+    
+    # The 'Secret Sauce': Combining Symbolic Math + Graph Lore
+    prompt = f"""
+    SYSTEM: You are the Dungeon Master. 
+    LORE CONTEXT: {state['world_context']}
+    MECHANIC RESULT: {state['logic_results']}
+    
+    USER ACTION: {state['user_input']}
+    
+    TASK: Write a response for the group chat. If the Lore Context mentions a secret or a 
+    specific smell/vibe, weave it into the description of the player's action.
+    """
+    
+    state["narrative"] = llm.invoke(prompt)
+    return state
 
 
 async def proxy_node(state: AgentState):

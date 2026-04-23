@@ -4,6 +4,8 @@ from langgraph.graph import StateGraph, END
 from app.agents.mechanic import mechanic_node
 from app.agents.chronicler import chronicler_node
 from app.agents.narrator import narrator_node
+from app.graph.state import AgentState
+
 
 # 1. Initialize the Graph
 workflow = StateGraph(AgentState)

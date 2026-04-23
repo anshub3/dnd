@@ -6,9 +6,9 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from app.utils.mechanics_engine import MechanicsEngine
 from app.graph.state import AgentState
 # Assuming you're using Ollama or LangChain's Llama interface
-from langchain_community.llms import Ollama 
+from langchain_ollama import OllamaLLM
 
-llm = Ollama(model="llama3.2", format="json")
+llm = OllamaLLM(model="llama3.2", format="json")
 
 async def mechanic_node(state: AgentState):
     # 1. AI prompt

@@ -4,7 +4,7 @@ from fastapi import FastAPI
 from app.graph.workflow import dungeon_master_app
 from app.schema.player import GameState
 from app.core.database import save_game_state, SessionLocal, GameStateModel
-
+import json
 
 # --------------------------
 # API SETUP
@@ -35,3 +35,13 @@ async def handle_chat(game_id: str, message: str):
         "dm_response": final_output["narrative"],
         "chat_history": final_output["history"]
     }
+
+
+def load_db_state(game_id: str):
+    db = SessionLocal()
+    session = db.query(GameStateModel).filter(GameStateModel.game_id == game_id).first()
+    db.close()
+    
+    if session:
+        return session.current_state, json.loads(session.chat_history)
+    return None, []

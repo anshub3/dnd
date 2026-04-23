@@ -10,25 +10,48 @@ from langchain_ollama import OllamaLLM
 
 llm = OllamaLLM(model="llama3.2", format="json")
 
+LEVEL_REQUIREMENTS = {
+    "world_altering": 17,  # Wish, Reality Warping
+    "teleportation": 7,    # Dimension Door, Teleport
+    "resurrection": 5,     # Revivify
+    "area_destruction": 5  # Fireball, Lightning Bolt
+}
+
 async def mechanic_node(state: AgentState):
     # 1. AI prompt
     prompt = """
     You are the D&D 5e Mechanic Parser. 
+    Current Player Level: {state['game_state'].get('player_level', 1)}
+    User Input: {state['user_input']}
     Analyze the input and output ONLY a JSON object. 
     Do not calculate HP changes yourself.
     
-    Fields:
-    - "action_type": (attack, heal, skill_check, or movement)
-    - "target_id": (The ID of the player or NPC targeted)
-    - "dice_roll": (Roll a 1d20)
-    - "value": (The raw damage or healing amount based on 5e rules)
+    Task:
+    1. Determine if the action is physically/magically possible for their level.
+    2. If impossible, set "valid": false and provide a "reason".
+    3. If possible, set "valid": true and provide "dice_roll".
+
+    Categorize this action into one of: [melee, social, exploration, teleportation, world_altering, area_destruction].
+
+    Output ONLY JSON:
+    {{
+        "action": "string",
+        "valid": boolean,
+        "reason": "string",
+        "dice_roll": int,
+        "category": "string",
+        "intensity": int
+    }}
     """
     
-    response = llm.invoke([
-        SystemMessage(content=prompt),
-        HumanMessage(content=f"Current State: {state['game_state']}\nPlayer Input: {state['user_input']}")
-    ])
+    player_level = state['game_state'].get('player_level', 1)
+    action_cat = logic_results.get("category")
+    response = llm.invoke(prompt)
+    logic_results = json.loads(re.search(r'\{.*\}', response, re.DOTALL).group(0))
 
+
+
+    '''
     # 2. Extraction 
     try:
         json_str = re.search(r'\{.*\}', response, re.DOTALL).group(0)
@@ -36,23 +59,20 @@ async def mechanic_node(state: AgentState):
     except Exception as e:
         print(f"Mechanic failed to parse JSON: {e}")
         return state # Or handle error
-    
+    '''
+
     # 3. Symbolic Execution (The "Symbolic" part of Neuro-Symbolic)
     # We use our Python engine to update the actual numbers
     engine = MechanicsEngine()
-    game_state_obj = state["game_state"] # This should be your Pydantic object
+    game_state_obj = state["game_state"] # This should be the Pydantic object
     
-    if intent_data["action_type"] == "attack":
-        # Check success vs AC (Logic moved to Python for 100% accuracy)
-        # Assuming we fetch target AC from the state
-        updated_state = engine.apply_damage(
-            game_state_obj, 
-            intent_data["target_id"], 
-            intent_data["value"]
-        )
-        state["game_state"] = updated_state
+    if action_cat in LEVEL_REQUIREMENTS:
+        required = LEVEL_REQUIREMENTS[action_cat]
+        if player_level < required:
+            logic_results["valid"] = False
+            logic_results["reason"] = f"Action category '{action_cat}' requires Level {required}. You are only Level {player_level}."
 
     # 4. Store results for the Narrator to read
-    state["logic_results"] = intent_data
+    state["logic_results"] = logic_results
     return state
     

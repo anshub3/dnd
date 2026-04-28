@@ -1,7 +1,7 @@
 # apps/agents/narrator.py
 
-from neo4j import GraphDatabase
 from app.graph.state import AgentState
+from app.clients import llm
 
 '''async def narrator_node(state: AgentState):
     system_prompt = """

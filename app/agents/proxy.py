@@ -1,6 +1,7 @@
 # app/agent/proxy.py
 
 from app.graph.state import AgentState
+from app.clients import llm
 
 async def proxy_node(state: AgentState):
     print(f"--- 🤖 Proxy: Acting as {state['active_proxy_name']} ---")

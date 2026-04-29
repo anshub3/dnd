@@ -1,4 +1,4 @@
-# app/scema/player.py
+# app/schema/player.py
 
 from pydantic import BaseModel, Field
 from typing import List, Optional, Dict
@@ -29,4 +29,5 @@ class GameState(BaseModel):
     party: List[Player]
     combat_active: bool = False
     turn_index: int = 0
-    log: List[str] = [] # History of actions
+    next_turn_is_proxy: bool = False
+    history: List[str] = []  # History of actions

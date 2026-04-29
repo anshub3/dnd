@@ -3,7 +3,7 @@
 import logging
 from fastapi import FastAPI, HTTPException, Depends
 from app.graph.workflow import dungeon_master_app
-from app.schema.player import GameState
+from app.schema.player import GameState, Player, Stats
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.database import save_game_state, SessionLocal, GameStateModel, load_db_state, update_db_state
 from pydantic import BaseModel
@@ -15,6 +15,25 @@ logging.basicConfig(
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
 )
 logger = logging.getLogger(__name__)
+
+
+def create_default_game_state(game_id: str, player_name: str) -> dict:
+    default_player = Player(
+        id="player-1",
+        name=player_name,
+        is_ai_proxy=False,
+        stats=Stats(hp=10, max_hp=10, ac=12, strength=12, dexterity=12, intiative_mod=2),
+    )
+    return GameState(
+        game_id=game_id,
+        current_location="The Rusty Tankard",
+        player_level=1,
+        party=[default_player],
+        combat_active=False,
+        turn_index=0,
+        next_turn_is_proxy=False,
+        history=[],
+    ).dict()
 
 # --------------------------
 # API SETUP
@@ -60,14 +79,7 @@ async def handle_chat(request: ChatRequest):
         # Initialize default state for new games
         if not state_data:
             logger.info(f"Creating new session for game_id: {request.game_id}")
-            state_data = {
-                "location": "The Rusty Tankard",
-                "player_level": 1,
-                "inventory": ["Rusted Sword", "Small Pouch of Gold"],
-                "party_members": [request.player_name],
-                "active_proxy_name": "Kaelen the Rogue",
-                "proxy_persona": "Sarcastic, gold-obsessed, and wary of shadows."
-            }
+            state_data = create_default_game_state(request.game_id, request.player_name)
             chat_history = []
 
         # 2. LANGGRAPH INPUT PREPARATION

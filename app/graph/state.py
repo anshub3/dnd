@@ -14,5 +14,5 @@ class AgentState(TypedDict):
     world_context: str
     # The final prose to send to the UI
     narrative: str
-    # A log of what happened (for the group chat history)
+    # A history of what happened in the group chat
     history: Annotated[List[str], add]

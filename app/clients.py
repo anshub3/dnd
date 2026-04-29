@@ -2,6 +2,7 @@ import os
 from dotenv import load_dotenv
 from langchain_ollama import OllamaLLM
 from neo4j import GraphDatabase
+from app.core.database import engine, SessionLocal, Base, GameStateModel
 
 load_dotenv()
 

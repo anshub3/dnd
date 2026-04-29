@@ -1,13 +1,17 @@
 import json
 from app.graph.state import AgentState
 from app.clients import llm, get_neo4j_session
+from app.utils.tools import extract_json
 
 
 async def chronicler_node(state: AgentState):
     print("--- 📚 Chronicler: Fetching Relational Context ---")
     
     # Get current location from GameState (Postgres-sourced)
-    current_loc = state["game_state"].get("location", "The Rusty Tankard")
+    current_loc = state["game_state"].get(
+        "current_location",
+        state["game_state"].get("location", "The Rusty Tankard")
+    )
     
     # Complex Query: Find the location's lore AND any NPCs living there
     query = """

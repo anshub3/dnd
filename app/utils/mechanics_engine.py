@@ -8,7 +8,7 @@ class MechanicsEngine:
         for player in state.party:
             if player.id == target_id:
                 player.stats.hp = max(0, player.stats.hp - amount)
-                state.log.append(f"{player.name} took {amount} damage. HP: {player.stats.hp}")
+                state.history.append(f"{player.name} took {amount} damage. HP: {player.stats.hp}")
         return state
 
     @staticmethod
